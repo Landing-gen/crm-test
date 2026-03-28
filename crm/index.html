@@ -103,6 +103,8 @@
     .status-select-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
     .status-select-row label{font-size:.82rem;color:var(--muted)}
     .status-select{padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;font-family:inherit;cursor:pointer}
+    .field-input{width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem;font-family:inherit;outline:none;box-sizing:border-box}
+    .field-input:focus{border-color:var(--accent)}
     .notes-textarea{width:100%;min-height:80px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;font-family:inherit;resize:vertical;outline:none}
     .notes-textarea:focus{border-color:var(--accent)}
     .notes-save-row{display:flex;align-items:center;gap:8px;margin-top:6px}
@@ -581,10 +583,15 @@
         </select>
       </div>
       <hr class="divider">
-      ${email?`<div class="field-group"><div class="field-label">Email</div><div class="field-value">${esc(email)}</div></div>`:''}
-      ${phone?`<div class="field-group"><div class="field-label">Телефон</div><div class="field-value">${esc(phone)}</div></div>`:''}
-      ${sub.preferred_time_text?`<div class="field-group"><div class="field-label">Предпочтительное время</div><div class="field-value">${esc(sub.preferred_time_text)}</div></div>`:''}
-      ${sub.request_text?`<div class="field-group"><div class="field-label">Сообщение</div><div class="field-value">${esc(sub.request_text)}</div></div>`:''}
+      <div class="field-group"><div class="field-label">Имя</div><input class="field-input" id="d-f-name" type="text" value="${esc(sub.visitor_name||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">Email</div><input class="field-input" id="d-f-email" type="text" value="${esc(sub.visitor_email||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">Телефон</div><input class="field-input" id="d-f-phone" type="text" value="${esc(sub.visitor_phone||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">Предпочтительное время</div><input class="field-input" id="d-f-time" type="text" value="${esc(sub.preferred_time_text||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">Сообщение</div><textarea class="notes-textarea" id="d-f-msg">${esc(sub.request_text||'')}</textarea></div>
+      <div class="notes-save-row" style="margin-bottom:8px">
+        <button class="btn btn-sm" id="d-fields-save">Сохранить данные</button>
+        <span class="notes-status" id="d-fields-st"></span>
+      </div>
       ${sub.page_url?`<div class="field-group"><div class="field-label">Страница</div><div class="field-value"><a href="${esc(sub.page_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(sub.page_url)}</a></div></div>`:''}
       <hr class="divider">
       <div style="margin-bottom:16px">
@@ -606,6 +613,27 @@
         if(idx!==-1) allSubmissions[idx].crm_status=ns; sub.crm_status=ns;
         updateCounts(); renderList(); renderDetail(sub);
       }catch(e){alert('Ошибка: '+e.message); this.value=sub.crm_status;}
+    });
+
+    document.getElementById('d-fields-save').addEventListener('click',async()=>{
+      const st=document.getElementById('d-fields-st');
+      st.textContent='Сохраняем…';
+      const patch={
+        visitor_name:document.getElementById('d-f-name').value.trim()||null,
+        visitor_email:document.getElementById('d-f-email').value.trim()||null,
+        visitor_phone:document.getElementById('d-f-phone').value.trim()||null,
+        preferred_time_text:document.getElementById('d-f-time').value.trim()||null,
+        request_text:document.getElementById('d-f-msg').value.trim()||null
+      };
+      try{
+        const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/'+sub.id,{method:'PATCH',body:JSON.stringify(patch)});
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const idx=allSubmissions.findIndex(s=>s.id===sub.id);
+        Object.assign(sub,patch);
+        if(idx!==-1) Object.assign(allSubmissions[idx],patch);
+        renderList();
+        st.textContent='Сохранено ✓'; setTimeout(()=>st.textContent='',2000);
+      }catch(e){st.textContent='Ошибка: '+e.message;}
     });
 
     document.getElementById('d-notes-save').addEventListener('click',async()=>{
