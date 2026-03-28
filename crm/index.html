@@ -1,35 +1,38 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>CRM — Заявки</title>
+  <title>CRM</title>
   <meta name="crm-project-slug" content="crm-test">
   <meta name="crm-api-base" content="https://land-gen-2.onrender.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:#0f172a;--surface:#1e293b;--surface-2:#0b1220;--surface-3:#162032;
-      --border:#334155;--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8;
-      --ok:#86efac;--warn:#fde68a;--err:#fda4af;
+      --bg:#f8fafc;--surface:#ffffff;--surface-2:#f1f5f9;--surface-3:#eff6ff;
+      --border:#e2e8f0;--text:#1e293b;--muted:#64748b;--accent:#2563eb;
+      --ok:#16a34a;--warn:#d97706;--err:#dc2626;
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
-    .btn{padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);cursor:pointer;font-size:.82rem;font-family:inherit;white-space:nowrap;transition:border-color .15s}
+    .btn{padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);cursor:pointer;font-size:.82rem;font-family:inherit;white-space:nowrap;transition:border-color .15s,background .15s}
     .btn:hover{border-color:var(--accent)}
     .btn:disabled{opacity:.45;cursor:default}
-    .btn-primary{background:var(--accent);color:#0f172a;border-color:var(--accent);font-weight:600}
-    .btn-primary:hover{opacity:.9}
+    .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+    .btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8;opacity:1}
     .btn-danger{border-color:var(--err);color:var(--err)}
-    .btn-danger:hover{background:var(--err);color:#0f172a}
+    .btn-danger:hover{background:var(--err);color:#fff}
     .btn-sm{padding:4px 8px;font-size:.78rem}
     .is-hidden{display:none!important}
 
     /* Auth screens */
-    .auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-    .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:360px;max-width:100%}
+    .auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;flex-direction:column;gap:12px}
+    .lang-switcher{display:flex;gap:4px}
+    .lang-btn{padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--muted);cursor:pointer;font-size:.75rem;font-family:inherit}
+    .lang-btn.is-active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:360px;max-width:100%;box-shadow:0 1px 3px rgba(0,0,0,.07)}
     .auth-box h2{margin:0 0 4px;font-size:1.1rem}
     .auth-box .sub{color:var(--muted);font-size:.82rem;margin:0 0 20px}
     .field-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
@@ -40,32 +43,36 @@
 
     /* App layout */
     .app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
-    .topbar{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+    .topbar{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
     .brand{font-weight:700;font-size:.9rem;margin:0;white-space:nowrap}
     .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    [dir=rtl] .topbar-right{margin-left:0;margin-right:auto}
     .user-pill{font-size:.78rem;color:var(--muted)}
 
     .toolbar{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);flex-wrap:wrap}
     .search-wrap{position:relative;flex:1;min-width:180px;max-width:300px}
     .search-wrap input{width:100%;padding:6px 10px 6px 28px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;font-family:inherit;outline:none}
+    [dir=rtl] .search-wrap input{padding:6px 28px 6px 10px}
     .search-wrap input:focus{border-color:var(--accent)}
     .search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.85rem}
+    [dir=rtl] .search-icon{left:auto;right:8px}
     .status-tabs{display:flex;gap:4px;flex-wrap:wrap}
     .tab-btn{padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);cursor:pointer;font-size:.78rem;font-family:inherit;transition:all .15s}
     .tab-btn:hover{border-color:var(--accent);color:var(--text)}
-    .tab-btn.is-active{background:var(--accent);border-color:var(--accent);color:#0f172a;font-weight:600}
-    .tab-count{display:inline-block;background:rgba(255,255,255,.15);border-radius:8px;padding:0 5px;font-size:.68rem;margin-left:3px}
-    .tab-btn.is-active .tab-count{background:rgba(0,0,0,.2)}
+    .tab-btn.is-active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+    .tab-count{display:inline-block;background:rgba(0,0,0,.1);border-radius:8px;padding:0 5px;font-size:.68rem;margin-left:3px}
+    [dir=rtl] .tab-count{margin-left:0;margin-right:3px}
+    .tab-btn.is-active .tab-count{background:rgba(255,255,255,.3)}
     .sort-select{padding:5px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.8rem;font-family:inherit;cursor:pointer}
 
-    .bulk-bar{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:8px 16px;background:#1a3050;border-bottom:1px solid var(--accent);flex-wrap:wrap}
+    .bulk-bar{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:8px 16px;background:#eff6ff;border-bottom:1px solid #bfdbfe;flex-wrap:wrap}
     .bulk-count{font-size:.82rem;color:var(--accent);font-weight:600}
 
     .panels{flex:1;display:flex;min-height:0;overflow:hidden}
-    .panel-list{width:340px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;background:var(--surface-2)}
+    .panel-list{width:340px;flex-shrink:0;border-inline-end:1px solid var(--border);overflow-y:auto;background:var(--surface-2)}
     .panel-detail{flex:1;overflow-y:auto;padding:20px 24px;background:var(--bg)}
     @media(max-width:700px){
-      .panel-list{width:100%;border-right:none}
+      .panel-list{width:100%;border-inline-end:none}
       .panel-detail{display:none}
       .panel-detail.is-open{display:block;position:fixed;inset:52px 0 0;z-index:50;background:var(--bg);overflow-y:auto;padding:16px}
     }
@@ -73,7 +80,7 @@
     .list-empty{padding:32px 16px;text-align:center;color:var(--muted)}
     .sub-card{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
     .sub-card:hover{background:var(--surface-3)}
-    .sub-card.is-active{background:var(--surface);border-left:3px solid var(--accent)}
+    .sub-card.is-active{background:#eff6ff;border-inline-start:3px solid var(--accent)}
     .sub-card-check{margin-top:3px;flex-shrink:0;accent-color:var(--accent);cursor:pointer;width:15px;height:15px}
     .sub-card-body{flex:1;min-width:0}
     .sub-card-name{font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -83,11 +90,11 @@
     .sub-card-date{font-size:.72rem;color:var(--muted)}
 
     .status-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.68rem;font-weight:600;line-height:1.6}
-    .status-badge[data-status="new"]{background:rgba(56,189,248,.2);color:#38bdf8}
-    .status-badge[data-status="contacted"]{background:rgba(253,230,138,.2);color:#fde68a}
-    .status-badge[data-status="in_progress"]{background:rgba(196,181,253,.2);color:#c4b5fd}
-    .status-badge[data-status="closed"]{background:rgba(134,239,172,.2);color:#86efac}
-    .status-badge[data-status="archived"]{background:rgba(71,85,105,.35);color:#94a3b8}
+    .status-badge[data-status="new"]{background:#dbeafe;color:#1d4ed8}
+    .status-badge[data-status="contacted"]{background:#fef3c7;color:#d97706}
+    .status-badge[data-status="in_progress"]{background:#ede9fe;color:#7c3aed}
+    .status-badge[data-status="closed"]{background:#dcfce7;color:#16a34a}
+    .status-badge[data-status="archived"]{background:#f1f5f9;color:#64748b}
 
     .detail-empty{padding:48px 24px;text-align:center;color:var(--muted)}
     .detail-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
@@ -112,9 +119,9 @@
     .divider{border:none;border-top:1px solid var(--border);margin:16px 0}
 
     /* Modals */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:80;align-items:center;justify-content:center}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:80;align-items:center;justify-content:center}
     .modal-overlay.is-visible{display:flex}
-    .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto}
+    .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)}
     .modal-box h3{margin:0 0 16px;font-size:1rem}
     .modal-footer{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
 
@@ -134,40 +141,50 @@
 
 <!-- ── Auth: login ── -->
 <div id="screen-login" class="auth-screen">
+  <div class="lang-switcher" id="auth-lang-sw">
+    <button class="lang-btn is-active" data-lang="ru">RU</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="he">עב</button>
+  </div>
   <div class="auth-box">
-    <h2>Вход в CRM</h2>
-    <p class="sub" id="login-sub">Управление заявками вашего сайта</p>
+    <h2 data-i18n="loginTitle">Вход в CRM</h2>
+    <p class="sub" id="login-sub" data-i18n="loginSub">Управление заявками вашего сайта</p>
     <div class="field-row">
-      <label class="label" for="login-email">Email</label>
+      <label class="label" for="login-email" data-i18n="loginEmail">Email</label>
       <input id="login-email" class="field" type="email" autocomplete="email" placeholder="you@example.com">
     </div>
     <div class="field-row">
-      <label class="label" for="login-password">Пароль</label>
-      <input id="login-password" class="field" type="password" autocomplete="current-password" placeholder="Ваш пароль">
+      <label class="label" for="login-password" data-i18n="loginPassword">Пароль</label>
+      <input id="login-password" class="field" type="password" autocomplete="current-password" data-i18n-ph="loginPasswordPh">
     </div>
-    <button id="login-btn" class="btn btn-primary" type="button" style="width:100%">Войти</button>
+    <button id="login-btn" class="btn btn-primary" type="button" style="width:100%" data-i18n="loginBtn">Войти</button>
     <div id="login-status" class="auth-status"></div>
   </div>
 </div>
 
 <!-- ── Auth: accept invite ── -->
 <div id="screen-invite" class="auth-screen is-hidden">
+  <div class="lang-switcher" id="invite-lang-sw">
+    <button class="lang-btn is-active" data-lang="ru">RU</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="he">עב</button>
+  </div>
   <div class="auth-box">
-    <h2>Создать аккаунт</h2>
-    <p class="sub">Вас пригласили — задайте email и пароль для входа</p>
+    <h2 data-i18n="inviteTitle">Создать аккаунт</h2>
+    <p class="sub" data-i18n="inviteSub">Вас пригласили — задайте email и пароль для входа</p>
     <div class="field-row">
-      <label class="label" for="invite-email">Email</label>
+      <label class="label" for="invite-email" data-i18n="loginEmail">Email</label>
       <input id="invite-email" class="field" type="email" autocomplete="email" placeholder="you@example.com">
     </div>
     <div class="field-row">
-      <label class="label" for="invite-password">Пароль (не менее 8 символов)</label>
-      <input id="invite-password" class="field" type="password" autocomplete="new-password" placeholder="Придумайте пароль">
+      <label class="label" for="invite-password" data-i18n="invitePassword">Пароль (не менее 8 символов)</label>
+      <input id="invite-password" class="field" type="password" autocomplete="new-password" data-i18n-ph="invitePasswordPh">
     </div>
     <div class="field-row">
-      <label class="label" for="invite-password2">Повторите пароль</label>
-      <input id="invite-password2" class="field" type="password" autocomplete="new-password" placeholder="Повторите пароль">
+      <label class="label" for="invite-password2" data-i18n="invitePassword2">Повторите пароль</label>
+      <input id="invite-password2" class="field" type="password" autocomplete="new-password" data-i18n-ph="invitePassword2Ph">
     </div>
-    <button id="invite-btn" class="btn btn-primary" type="button" style="width:100%">Создать аккаунт</button>
+    <button id="invite-btn" class="btn btn-primary" type="button" style="width:100%" data-i18n="inviteBtn">Создать аккаунт</button>
     <div id="invite-status" class="auth-status"></div>
   </div>
 </div>
@@ -177,44 +194,49 @@
   <div class="topbar">
     <h1 class="brand" id="app-title">CRM</h1>
     <div class="topbar-right">
-      <button class="btn btn-sm back-mobile" id="back-to-list-btn" type="button">← Список</button>
+      <button class="btn btn-sm back-mobile" id="back-to-list-btn" type="button" data-i18n="backList">← Список</button>
       <span class="user-pill" id="user-email-label"></span>
-      <button class="btn btn-sm" id="change-pw-btn" type="button">Пароль</button>
-      <button class="btn btn-sm" id="users-btn" type="button" title="Управление пользователями">👥</button>
-      <button class="btn btn-sm" id="export-btn" type="button">CSV</button>
-      <button class="btn btn-sm" id="logout-btn" type="button">Выйти</button>
+      <div class="lang-switcher" id="app-lang-sw">
+        <button class="lang-btn is-active" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="he">עב</button>
+      </div>
+      <button class="btn btn-sm" id="change-pw-btn" type="button" data-i18n="changePw">Пароль</button>
+      <button class="btn btn-sm" id="users-btn" type="button" title="Users">👥</button>
+      <button class="btn btn-sm" id="export-btn" type="button" data-i18n="csvExport">CSV</button>
+      <button class="btn btn-sm" id="logout-btn" type="button" data-i18n="logout">Выйти</button>
     </div>
   </div>
 
   <div class="toolbar">
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input type="search" id="search-input" placeholder="Имя, email, телефон…">
+      <input type="search" id="search-input" data-i18n-ph="searchPh" placeholder="Имя, email, телефон…">
     </div>
     <div class="status-tabs" id="status-tabs">
-      <button class="tab-btn is-active" data-status="active">Активные <span class="tab-count" id="cnt-active">0</span></button>
-      <button class="tab-btn" data-status="new">Новые <span class="tab-count" id="cnt-new">0</span></button>
-      <button class="tab-btn" data-status="contacted">Связались <span class="tab-count" id="cnt-contacted">0</span></button>
-      <button class="tab-btn" data-status="in_progress">В работе <span class="tab-count" id="cnt-in_progress">0</span></button>
-      <button class="tab-btn" data-status="closed">Закрыты <span class="tab-count" id="cnt-closed">0</span></button>
-      <button class="tab-btn" data-status="archived">Архив <span class="tab-count" id="cnt-archived">0</span></button>
+      <button class="tab-btn is-active" data-status="active"><span data-i18n="tabActive">Активные</span> <span class="tab-count" id="cnt-active">0</span></button>
+      <button class="tab-btn" data-status="new"><span data-i18n="tabNew">Новые</span> <span class="tab-count" id="cnt-new">0</span></button>
+      <button class="tab-btn" data-status="contacted"><span data-i18n="tabContacted">Связались</span> <span class="tab-count" id="cnt-contacted">0</span></button>
+      <button class="tab-btn" data-status="in_progress"><span data-i18n="tabInProgress">В работе</span> <span class="tab-count" id="cnt-in_progress">0</span></button>
+      <button class="tab-btn" data-status="closed"><span data-i18n="tabClosed">Закрыты</span> <span class="tab-count" id="cnt-closed">0</span></button>
+      <button class="tab-btn" data-status="archived"><span data-i18n="tabArchived">Архив</span> <span class="tab-count" id="cnt-archived">0</span></button>
     </div>
     <select class="sort-select" id="sort-select">
-      <option value="newest">Новые сначала</option>
-      <option value="oldest">Старые сначала</option>
-      <option value="name_asc">По имени А–Я</option>
-      <option value="name_desc">По имени Я–А</option>
+      <option value="newest" data-i18n="sortNewest">Новые сначала</option>
+      <option value="oldest" data-i18n="sortOldest">Старые сначала</option>
+      <option value="name_asc" data-i18n="sortNameAsc">По имени А–Я</option>
+      <option value="name_desc" data-i18n="sortNameDesc">По имени Я–А</option>
     </select>
   </div>
 
   <div class="bulk-bar is-hidden" id="bulk-bar">
-    <span class="bulk-count" id="bulk-count">0 выбрано</span>
-    <button class="btn btn-sm" id="bulk-status-btn">Статус…</button>
-    <button class="btn btn-sm" id="bulk-archive-btn">В архив</button>
-    <button class="btn btn-sm" id="bulk-msg-btn">Рассылка…</button>
-    <span id="bulk-msg-note" class="is-hidden" style="font-size:.78rem;color:var(--muted);font-style:italic">Для подключения рассылок обратитесь к разработчику</span>
-    <button class="btn btn-sm btn-danger" id="bulk-delete-btn">Удалить</button>
-    <button class="btn btn-sm" id="bulk-deselect-btn">Снять</button>
+    <span class="bulk-count" id="bulk-count">0</span>
+    <button class="btn btn-sm" id="bulk-status-btn" data-i18n="bulkStatus">Статус…</button>
+    <button class="btn btn-sm" id="bulk-archive-btn" data-i18n="bulkArchive">В архив</button>
+    <button class="btn btn-sm" id="bulk-msg-btn" data-i18n="bulkMsg">Рассылка…</button>
+    <span id="bulk-msg-note" class="is-hidden" style="font-size:.78rem;color:var(--muted);font-style:italic" data-i18n="bulkMsgNote">Для подключения рассылок обратитесь к разработчику</span>
+    <button class="btn btn-sm btn-danger" id="bulk-delete-btn" data-i18n="bulkDelete">Удалить</button>
+    <button class="btn btn-sm" id="bulk-deselect-btn" data-i18n="bulkDeselect">Снять</button>
   </div>
 
   <div class="panels">
@@ -222,7 +244,7 @@
       <div class="list-empty" id="list-loading"><span class="spinner"></span></div>
     </div>
     <div class="panel-detail" id="panel-detail">
-      <div class="detail-empty">Выберите заявку слева</div>
+      <div class="detail-empty" data-i18n="detailEmpty">Выберите заявку слева</div>
       <div id="detail-content" class="is-hidden"></div>
     </div>
   </div>
@@ -231,14 +253,14 @@
 <!-- Change password modal -->
 <div class="modal-overlay" id="pw-modal">
   <div class="modal-box">
-    <h3>Изменить пароль</h3>
-    <div class="field-row"><label class="label">Текущий пароль</label><input id="pw-old" class="field" type="password"></div>
-    <div class="field-row"><label class="label">Новый пароль</label><input id="pw-new" class="field" type="password"></div>
-    <div class="field-row"><label class="label">Повторите новый</label><input id="pw-new2" class="field" type="password"></div>
+    <h3 data-i18n="pwTitle">Изменить пароль</h3>
+    <div class="field-row"><label class="label" data-i18n="pwOld">Текущий пароль</label><input id="pw-old" class="field" type="password"></div>
+    <div class="field-row"><label class="label" data-i18n="pwNew">Новый пароль</label><input id="pw-new" class="field" type="password"></div>
+    <div class="field-row"><label class="label" data-i18n="pwNew2">Повторите новый</label><input id="pw-new2" class="field" type="password"></div>
     <div id="pw-status" style="font-size:.78rem;color:var(--muted);min-height:1.2em"></div>
     <div class="modal-footer">
-      <button class="btn" id="pw-cancel">Отмена</button>
-      <button class="btn btn-primary" id="pw-save">Сохранить</button>
+      <button class="btn" id="pw-cancel" data-i18n="pwCancel">Отмена</button>
+      <button class="btn btn-primary" id="pw-save" data-i18n="pwSave">Сохранить</button>
     </div>
   </div>
 </div>
@@ -246,21 +268,21 @@
 <!-- Users modal -->
 <div class="modal-overlay" id="users-modal">
   <div class="modal-box">
-    <h3>Пользователи CRM</h3>
+    <h3 data-i18n="usersTitle">Пользователи CRM</h3>
     <div id="users-list"><span class="spinner"></span></div>
     <div id="invite-link-area" class="is-hidden" style="margin-top:16px">
-      <div class="field-label" style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Ссылка для приглашения (действительна 7 дней)</div>
+      <div class="field-label" style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px" data-i18n="inviteLinkLabel">Ссылка для приглашения (действительна 7 дней)</div>
       <div style="display:flex;gap:8px">
         <input id="invite-link-input" class="field" type="text" readonly style="flex:1">
-        <button class="btn btn-sm" id="copy-invite-btn">Копировать</button>
+        <button class="btn btn-sm" id="copy-invite-btn" data-i18n="copyInvite">Копировать</button>
       </div>
     </div>
     <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn btn-sm btn-primary" id="gen-invite-btn">Пригласить сотрудника</button>
+      <button class="btn btn-sm btn-primary" id="gen-invite-btn" data-i18n="genInvite">Пригласить сотрудника</button>
     </div>
     <div id="users-status" style="font-size:.78rem;color:var(--muted);margin-top:8px;min-height:1.2em"></div>
     <div class="modal-footer">
-      <button class="btn" id="users-close">Закрыть</button>
+      <button class="btn" id="users-close" data-i18n="usersClose">Закрыть</button>
     </div>
   </div>
 </div>
@@ -268,16 +290,16 @@
 <!-- Bulk status modal -->
 <div class="modal-overlay" id="bulk-status-modal">
   <div class="modal-box" style="max-width:320px">
-    <h3>Изменить статус</h3>
+    <h3 data-i18n="bulkStatusTitle">Изменить статус</h3>
     <select id="bulk-status-select" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem;font-family:inherit;margin-bottom:8px">
-      <option value="new">Новая</option>
-      <option value="contacted">Связались</option>
-      <option value="in_progress">В работе</option>
-      <option value="closed">Закрыта</option>
+      <option value="new" data-i18n="sNew">Новая</option>
+      <option value="contacted" data-i18n="sContacted">Связались</option>
+      <option value="in_progress" data-i18n="sInProgress">В работе</option>
+      <option value="closed" data-i18n="sClosed">Закрыта</option>
     </select>
     <div class="modal-footer">
-      <button class="btn" id="bulk-status-cancel">Отмена</button>
-      <button class="btn btn-primary" id="bulk-status-confirm">Применить</button>
+      <button class="btn" id="bulk-status-cancel" data-i18n="bulkStatusCancel">Отмена</button>
+      <button class="btn btn-primary" id="bulk-status-confirm" data-i18n="bulkStatusApply">Применить</button>
     </div>
   </div>
 </div>
@@ -285,7 +307,7 @@
 <!-- Bulk message modal -->
 <div class="modal-overlay" id="bulk-msg-modal">
   <div class="modal-box">
-    <h3>Рассылка</h3>
+    <h3 data-i18n="msgTitle">Рассылка</h3>
     <div id="msg-transports" style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">
       <label id="msg-email-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem">
         <input type="checkbox" id="msg-email-check" value="email"> Email
@@ -300,12 +322,12 @@
         <input type="checkbox" id="msg-wh-check" value="webhook"> Webhook
       </label>
     </div>
-    <div id="msg-subject-row" class="field-row"><label class="label">Тема (email)</label><input id="msg-subject" class="field" type="text" placeholder="Уточнение по вашей заявке"></div>
-    <div class="field-row"><label class="label">Текст</label><textarea id="msg-text" class="field" rows="5" style="resize:vertical"></textarea></div>
+    <div id="msg-subject-row" class="field-row"><label class="label" data-i18n="msgSubjectLabel">Тема (email)</label><input id="msg-subject" class="field" type="text" data-i18n-ph="msgSubjectPh"></div>
+    <div class="field-row"><label class="label" data-i18n="msgTextLabel">Текст</label><textarea id="msg-text" class="field" rows="5" style="resize:vertical"></textarea></div>
     <div id="msg-status" style="font-size:.78rem;color:var(--muted);min-height:1.2em"></div>
     <div class="modal-footer">
-      <button class="btn" id="msg-cancel">Отмена</button>
-      <button class="btn btn-primary" id="msg-send">Отправить</button>
+      <button class="btn" id="msg-cancel" data-i18n="msgCancel">Отмена</button>
+      <button class="btn btn-primary" id="msg-send" data-i18n="msgSend">Отправить</button>
     </div>
   </div>
 </div>
@@ -315,6 +337,195 @@
   const PROJECT_SLUG = 'crm-test';
   const API_BASE = 'https://land-gen-2.onrender.com';
   const AUTH_KEY = 'crm_token_' + PROJECT_SLUG;
+  const LANG_KEY = 'crm_lang_' + PROJECT_SLUG;
+
+  // ── i18n ──
+  const I18N = {
+    ru: {
+      loginTitle:'Вход в CRM', loginSub:'Управление заявками вашего сайта',
+      loginEmail:'Email', loginPassword:'Пароль', loginPasswordPh:'Ваш пароль', loginBtn:'Войти',
+      inviteTitle:'Создать аккаунт', inviteSub:'Вас пригласили — задайте email и пароль для входа',
+      invitePassword:'Пароль (не менее 8 символов)', invitePasswordPh:'Придумайте пароль',
+      invitePassword2:'Повторите пароль', invitePassword2Ph:'Повторите пароль', inviteBtn:'Создать аккаунт',
+      backList:'← Список', changePw:'Пароль', csvExport:'CSV', logout:'Выйти',
+      searchPh:'Имя, email, телефон…',
+      tabActive:'Активные', tabNew:'Новые', tabContacted:'Связались', tabInProgress:'В работе',
+      tabClosed:'Закрыты', tabArchived:'Архив',
+      sortNewest:'Новые сначала', sortOldest:'Старые сначала',
+      sortNameAsc:'По имени А–Я', sortNameDesc:'По имени Я–А',
+      selected:function(n){return n+' выбрано';},
+      bulkStatus:'Статус…', bulkArchive:'В архив', bulkMsg:'Рассылка…',
+      bulkMsgNote:'Для подключения рассылок обратитесь к разработчику',
+      bulkDelete:'Удалить', bulkDeselect:'Снять',
+      anonymous:'Аноним', noSubmissionsFilter:'Нет заявок по фильтру', noSubmissions:'Заявок пока нет',
+      detailEmpty:'Выберите заявку слева',
+      submissionDate:'Заявка от', btnArchive:'📦 В архив', btnRestore:'↩ Восстановить',
+      btnDelete:'Удалить', btnCall:'📞 Позвонить', noContact:'Контакт не указан',
+      statusLabel:'Статус:', fldName:'Имя', fldEmail:'Email', fldPhone:'Телефон',
+      fldTime:'Предпочтительное время', fldMessage:'Сообщение', fldPage:'Страница',
+      fldNotes:'Заметки', saveData:'Сохранить данные', saveNotes:'Сохранить',
+      saving:'Сохраняем…', saved:'Сохранено ✓',
+      sNew:'Новая', sContacted:'Связались', sInProgress:'В работе', sClosed:'Закрыта', sArchived:'Архив',
+      pwTitle:'Изменить пароль', pwOld:'Текущий пароль', pwNew:'Новый пароль', pwNew2:'Повторите новый',
+      pwCancel:'Отмена', pwSave:'Сохранить',
+      usersTitle:'Пользователи CRM', inviteLinkLabel:'Ссылка для приглашения (действительна 7 дней)',
+      copyInvite:'Копировать', copied:'Скопировано!', genInvite:'Пригласить сотрудника',
+      usersClose:'Закрыть', roleOwner:'Владелец', roleEmployee:'Сотрудник', youTag:'Это вы', noUsers:'Нет пользователей',
+      inviteLinkValid:'Ссылка действительна 7 дней',
+      bulkStatusTitle:'Изменить статус', bulkStatusApply:'Применить', bulkStatusCancel:'Отмена',
+      msgTitle:'Рассылка', msgSubjectLabel:'Тема (email)', msgSubjectPh:'Уточнение по вашей заявке',
+      msgTextLabel:'Текст', msgCancel:'Отмена', msgSend:'Отправить',
+      errEnterEmailPw:'Введите email и пароль', errPwNoMatch:'Пароли не совпадают',
+      errNoTransport:'Выберите хотя бы один транспорт', errNoSubject:'Заполните тему письма',
+      errNoText:'Введите текст сообщения', errNoSubmissions:'Нет заявок',
+      errDevTransport:'Для включения этого транспорта обратитесь к разработчику',
+      confirmDelete:function(n){return 'Удалить заявку от "'+n+'" навсегда?';},
+      confirmArchive:function(n){return 'В архив '+n+' заявок?';},
+      confirmBulkDelete:function(n){return 'Удалить '+n+' заявок безвозвратно?';},
+      confirmRemoveUser:function(e){return 'Удалить пользователя '+e+'?';},
+      sentTransport:function(tr,s,f){return tr+': '+s+' отпр.'+(f?' ('+f+' ошибок)':'');},
+      sentResult:function(s,f){return 'Отправлено: '+s+', ошибок: '+f;},
+      loggingIn:'Входим…', creatingAccount:'Создаём аккаунт…', pwChanged:'Пароль изменён ✓',
+      sending:'Отправляем…', creatingLink:'Создаём ссылку…', err:'Ошибка: ',
+      relNow:'только что', relMin:function(m){return m+' мин. назад';},
+      relH:function(h){return h+' ч. назад';}, relD:function(d){return d+' дн. назад';},
+      locale:'ru-RU'
+    },
+    en: {
+      loginTitle:'CRM Login', loginSub:'Manage your website submissions',
+      loginEmail:'Email', loginPassword:'Password', loginPasswordPh:'Your password', loginBtn:'Sign in',
+      inviteTitle:'Create account', inviteSub:"You've been invited — set your email and password",
+      invitePassword:'Password (min 8 characters)', invitePasswordPh:'Choose a password',
+      invitePassword2:'Confirm password', invitePassword2Ph:'Confirm password', inviteBtn:'Create account',
+      backList:'← List', changePw:'Password', csvExport:'CSV', logout:'Log out',
+      searchPh:'Name, email, phone…',
+      tabActive:'Active', tabNew:'New', tabContacted:'Contacted', tabInProgress:'In progress',
+      tabClosed:'Closed', tabArchived:'Archive',
+      sortNewest:'Newest first', sortOldest:'Oldest first',
+      sortNameAsc:'By name A–Z', sortNameDesc:'By name Z–A',
+      selected:function(n){return n+' selected';},
+      bulkStatus:'Status…', bulkArchive:'Archive', bulkMsg:'Message…',
+      bulkMsgNote:'Contact developer to enable messaging',
+      bulkDelete:'Delete', bulkDeselect:'Deselect',
+      anonymous:'Anonymous', noSubmissionsFilter:'No matching submissions', noSubmissions:'No submissions yet',
+      detailEmpty:'Select a submission on the left',
+      submissionDate:'Submission from', btnArchive:'📦 Archive', btnRestore:'↩ Restore',
+      btnDelete:'Delete', btnCall:'📞 Call', noContact:'No contact provided',
+      statusLabel:'Status:', fldName:'Name', fldEmail:'Email', fldPhone:'Phone',
+      fldTime:'Preferred time', fldMessage:'Message', fldPage:'Page',
+      fldNotes:'Notes', saveData:'Save data', saveNotes:'Save',
+      saving:'Saving…', saved:'Saved ✓',
+      sNew:'New', sContacted:'Contacted', sInProgress:'In progress', sClosed:'Closed', sArchived:'Archive',
+      pwTitle:'Change password', pwOld:'Current password', pwNew:'New password', pwNew2:'Confirm new password',
+      pwCancel:'Cancel', pwSave:'Save',
+      usersTitle:'CRM Users', inviteLinkLabel:'Invite link (valid for 7 days)',
+      copyInvite:'Copy', copied:'Copied!', genInvite:'Invite employee',
+      usersClose:'Close', roleOwner:'Owner', roleEmployee:'Employee', youTag:"That's you", noUsers:'No users',
+      inviteLinkValid:'Link valid for 7 days',
+      bulkStatusTitle:'Change status', bulkStatusApply:'Apply', bulkStatusCancel:'Cancel',
+      msgTitle:'Message', msgSubjectLabel:'Subject (email)', msgSubjectPh:'Follow-up on your request',
+      msgTextLabel:'Text', msgCancel:'Cancel', msgSend:'Send',
+      errEnterEmailPw:'Enter email and password', errPwNoMatch:'Passwords do not match',
+      errNoTransport:'Select at least one channel', errNoSubject:'Enter email subject',
+      errNoText:'Enter message text', errNoSubmissions:'No submissions',
+      errDevTransport:'Contact developer to enable this channel',
+      confirmDelete:function(n){return 'Delete submission from "'+n+'" permanently?';},
+      confirmArchive:function(n){return 'Archive '+n+' submissions?';},
+      confirmBulkDelete:function(n){return 'Delete '+n+' submissions permanently?';},
+      confirmRemoveUser:function(e){return 'Remove user '+e+'?';},
+      sentTransport:function(tr,s,f){return tr+': '+s+' sent'+(f?' ('+f+' failed)':'');},
+      sentResult:function(s,f){return 'Sent: '+s+', failed: '+f;},
+      loggingIn:'Signing in…', creatingAccount:'Creating account…', pwChanged:'Password changed ✓',
+      sending:'Sending…', creatingLink:'Creating link…', err:'Error: ',
+      relNow:'just now', relMin:function(m){return m+' min ago';},
+      relH:function(h){return h+' h ago';}, relD:function(d){return d+' d ago';},
+      locale:'en-US'
+    },
+    he: {
+      loginTitle:'כניסה ל-CRM', loginSub:'ניהול פניות האתר שלך',
+      loginEmail:'אימייל', loginPassword:'סיסמה', loginPasswordPh:'הסיסמה שלך', loginBtn:'כניסה',
+      inviteTitle:'יצירת חשבון', inviteSub:'הוזמנת — הגדר אימייל וסיסמה',
+      invitePassword:'סיסמה (לפחות 8 תווים)', invitePasswordPh:'בחר סיסמה',
+      invitePassword2:'אימות סיסמה', invitePassword2Ph:'אמת סיסמה', inviteBtn:'צור חשבון',
+      backList:'רשימה →', changePw:'סיסמה', csvExport:'CSV', logout:'יציאה',
+      searchPh:'שם, אימייל, טלפון…',
+      tabActive:'פעילות', tabNew:'חדשות', tabContacted:'נוצר קשר', tabInProgress:'בטיפול',
+      tabClosed:'סגורות', tabArchived:'ארכיון',
+      sortNewest:'חדשות ראשון', sortOldest:'ישנות ראשון',
+      sortNameAsc:'לפי שם א–ת', sortNameDesc:'לפי שם ת–א',
+      selected:function(n){return 'נבחרו '+n;},
+      bulkStatus:'סטטוס…', bulkArchive:'לארכיון', bulkMsg:'שליחת הודעה…',
+      bulkMsgNote:'לחיבור שליחת הודעות פנה למפתח',
+      bulkDelete:'מחיקה', bulkDeselect:'ביטול בחירה',
+      anonymous:'אנונימי', noSubmissionsFilter:'אין פניות מתאימות', noSubmissions:'אין פניות עדיין',
+      detailEmpty:'בחר פנייה מהרשימה',
+      submissionDate:'פנייה מ-', btnArchive:'📦 לארכיון', btnRestore:'↩ שחזור',
+      btnDelete:'מחיקה', btnCall:'📞 שיחה', noContact:'לא צוינו פרטי קשר',
+      statusLabel:':סטטוס', fldName:'שם', fldEmail:'אימייל', fldPhone:'טלפון',
+      fldTime:'זמן מועדף', fldMessage:'הודעה', fldPage:'עמוד',
+      fldNotes:'הערות', saveData:'שמירת נתונים', saveNotes:'שמירה',
+      saving:'…שומר', saved:'נשמר ✓',
+      sNew:'חדשה', sContacted:'נוצר קשר', sInProgress:'בטיפול', sClosed:'סגורה', sArchived:'ארכיון',
+      pwTitle:'שינוי סיסמה', pwOld:'סיסמה נוכחית', pwNew:'סיסמה חדשה', pwNew2:'אימות סיסמה חדשה',
+      pwCancel:'ביטול', pwSave:'שמירה',
+      usersTitle:'משתמשי CRM', inviteLinkLabel:'קישור הזמנה (תקף 7 ימים)',
+      copyInvite:'העתקה', copied:'!הועתק', genInvite:'הזמנת עובד',
+      usersClose:'סגירה', roleOwner:'בעלים', roleEmployee:'עובד', youTag:'זה אתה', noUsers:'אין משתמשים',
+      inviteLinkValid:'הקישור תקף 7 ימים',
+      bulkStatusTitle:'שינוי סטטוס', bulkStatusApply:'החלה', bulkStatusCancel:'ביטול',
+      msgTitle:'שליחת הודעה', msgSubjectLabel:'נושא (אימייל)', msgSubjectPh:'מעקב לגבי הפנייה שלך',
+      msgTextLabel:'טקסט', msgCancel:'ביטול', msgSend:'שליחה',
+      errEnterEmailPw:'הזן אימייל וסיסמה', errPwNoMatch:'הסיסמאות אינן תואמות',
+      errNoTransport:'בחר לפחות ערוץ אחד', errNoSubject:'הזן נושא להודעת האימייל',
+      errNoText:'הזן טקסט להודעה', errNoSubmissions:'אין פניות',
+      errDevTransport:'לחיבור ערוץ זה פנה למפתח',
+      confirmDelete:function(n){return 'למחוק את הפנייה מ-"'+n+'" לצמיתות?';},
+      confirmArchive:function(n){return 'להעביר '+n+' פניות לארכיון?';},
+      confirmBulkDelete:function(n){return 'למחוק '+n+' פניות לצמיתות?';},
+      confirmRemoveUser:function(e){return 'להסיר משתמש '+e+'?';},
+      sentTransport:function(tr,s,f){return tr+': '+s+' נשלחו'+(f?' ('+f+' שגיאות)':'');},
+      sentResult:function(s,f){return 'נשלח: '+s+', שגיאות: '+f;},
+      loggingIn:'…מתחבר', creatingAccount:'…יוצר חשבון', pwChanged:'הסיסמה שונתה ✓',
+      sending:'…שולח', creatingLink:'…יוצר קישור', err:'שגיאה: ',
+      relNow:'עכשיו', relMin:function(m){return m+' דק\''},
+      relH:function(h){return h+' ש\'';}, relD:function(d){return d+' ימים';},
+      locale:'he-IL'
+    }
+  };
+
+  let lang = localStorage.getItem(LANG_KEY) || 'ru';
+  function t(key){ const d=I18N[lang]||I18N.ru; return d[key]!==undefined?d[key]:(I18N.ru[key]||key); }
+
+  function applyI18n(){
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      const v=t(el.dataset.i18n); if(typeof v==='string') el.textContent=v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+      const v=t(el.dataset.i18nPh); if(typeof v==='string') el.placeholder=v;
+    });
+    const isRtl=lang==='he';
+    document.documentElement.dir=isRtl?'rtl':'ltr';
+    document.documentElement.lang=lang;
+    // Update lang buttons in all switchers
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('is-active',b.dataset.lang===lang);
+    });
+  }
+
+  function setLang(l){
+    lang=l; localStorage.setItem(LANG_KEY,l);
+    applyI18n();
+    // Re-render dynamic parts if visible
+    if(!document.getElementById('screen-app').classList.contains('is-hidden')){
+      updateBulkBar(); renderList();
+      if(activeId) openDetail(activeId);
+    }
+  }
+
+  // Wire up all lang switchers (present on both auth and app screens)
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ setLang(btn.dataset.lang); });
+  });
 
   // ── State ──
   let accessToken = localStorage.getItem(AUTH_KEY) || '';
@@ -325,7 +536,6 @@
   let currentTab = 'active';
   let searchQuery = '';
   let sortMode = 'newest';
-  // source: 'project' = usable (per-project configured), 'env' = disabled (operator-level fallback), null = hidden
   let capabilities = { email: null, whatsapp: null, telegram: null, webhook: null };
   const inviteToken = new URLSearchParams(location.search).get('invite') || '';
 
@@ -340,23 +550,27 @@
     screenLogin.classList.toggle('is-hidden', name!=='login');
     screenInvite.classList.toggle('is-hidden', name!=='invite');
     screenApp.classList.toggle('is-hidden', name!=='app');
+    applyI18n();
   }
   function fmt(iso){
     if(!iso) return '—';
-    try{ return new Date(iso).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch{return iso;}
+    try{ return new Date(iso).toLocaleString(t('locale'),{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch{return iso;}
   }
   function rel(iso){
     if(!iso) return '';
     try{
       const d=Date.now()-new Date(iso).getTime(), m=Math.floor(d/60000);
-      if(m<1) return 'только что';
-      if(m<60) return m+' мин. назад';
+      if(m<1) return t('relNow');
+      if(m<60) return t('relMin')(m);
       const h=Math.floor(m/60);
-      if(h<24) return h+' ч. назад';
-      return Math.floor(h/24)+' дн. назад';
+      if(h<24) return t('relH')(h);
+      return t('relD')(Math.floor(h/24));
     }catch{return '';}
   }
-  function sLabel(s){ return {new:'Новая',contacted:'Связались',in_progress:'В работе',closed:'Закрыта',archived:'Архив'}[s]||s; }
+  function sLabel(s){
+    const map={new:'sNew',contacted:'sContacted',in_progress:'sInProgress',closed:'sClosed',archived:'sArchived'};
+    return t(map[s]||s)||s;
+  }
   function phoneDigits(p){ return String(p||'').replace(/[^\d+]/g,''); }
 
   function authHeaders(){
@@ -375,10 +589,10 @@
     const pw = document.getElementById('invite-password').value;
     const pw2 = document.getElementById('invite-password2').value;
     const st = document.getElementById('invite-status');
-    if(!email||!pw){st.textContent='Введите email и пароль';st.style.color='var(--err)';return;}
-    if(pw!==pw2){st.textContent='Пароли не совпадают';st.style.color='var(--err)';return;}
+    if(!email||!pw){st.textContent=t('errEnterEmailPw');st.style.color='var(--err)';return;}
+    if(pw!==pw2){st.textContent=t('errPwNoMatch');st.style.color='var(--err)';return;}
     const btn=document.getElementById('invite-btn');
-    btn.disabled=true; st.textContent='Создаём аккаунт…'; st.style.color='var(--muted)';
+    btn.disabled=true; st.textContent=t('creatingAccount'); st.style.color='var(--muted)';
     try{
       const r=await fetch(API_BASE+'/api/client-auth/'+PROJECT_SLUG+'/accept-invite',{
         method:'POST',headers:{'Content-Type':'application/json'},
@@ -389,11 +603,10 @@
       accessToken=d.accessToken;
       localStorage.setItem(AUTH_KEY,accessToken);
       currentUser=d.user;
-      // clean up URL
       history.replaceState(null,'',location.pathname);
       await loadAndShow();
     }catch(e){
-      st.textContent='Ошибка: '+e.message; st.style.color='var(--err)';
+      st.textContent=t('err')+e.message; st.style.color='var(--err)';
     }finally{btn.disabled=false;}
   }
 
@@ -403,8 +616,8 @@
     const pw=document.getElementById('login-password').value;
     const st=document.getElementById('login-status');
     const btn=document.getElementById('login-btn');
-    if(!email||!pw){st.textContent='Введите email и пароль';st.style.color='var(--err)';return;}
-    btn.disabled=true; st.textContent='Входим…'; st.style.color='var(--muted)';
+    if(!email||!pw){st.textContent=t('errEnterEmailPw');st.style.color='var(--err)';return;}
+    btn.disabled=true; st.textContent=t('loggingIn'); st.style.color='var(--muted)';
     try{
       const r=await fetch(API_BASE+'/api/client-auth/'+PROJECT_SLUG+'/login',{
         method:'POST',headers:{'Content-Type':'application/json'},
@@ -417,7 +630,7 @@
       currentUser=d.user;
       await loadAndShow();
     }catch(e){
-      st.textContent='Ошибка: '+e.message; st.style.color='var(--err)';
+      st.textContent=t('err')+e.message; st.style.color='var(--err)';
     }finally{btn.disabled=false;}
   }
 
@@ -425,10 +638,8 @@
   async function loadAndShow(){
     showScreen('app');
     document.getElementById('user-email-label').textContent = currentUser && currentUser.email || '';
-    // Hide users button if not owner
     const usersBtn=document.getElementById('users-btn');
     if(currentUser && currentUser.role!=='owner') usersBtn.classList.add('is-hidden');
-    // Load capabilities (best-effort — bulk bar will reflect result)
     try{
       const r=await api('/api/client-crm/'+PROJECT_SLUG+'/capabilities');
       if(r.ok){ const d=await r.json(); capabilities={email:d.email||null,whatsapp:d.whatsapp||null,telegram:d.telegram||null,webhook:d.webhook||null}; }
@@ -451,7 +662,7 @@
     }catch(e){
       ll.classList.add('is-hidden');
       const el=document.createElement('div'); el.className='list-empty';
-      el.textContent='Ошибка: '+e.message; panelList.appendChild(el);
+      el.textContent=t('err')+e.message; panelList.appendChild(el);
     }
   }
 
@@ -472,7 +683,7 @@
       if(sortMode==='newest') return new Date(b.created_at)-new Date(a.created_at);
       if(sortMode==='oldest') return new Date(a.created_at)-new Date(b.created_at);
       const na=(a.visitor_name||'').toLowerCase(), nb=(b.visitor_name||'').toLowerCase();
-      return sortMode==='name_asc'?na.localeCompare(nb,'ru'):nb.localeCompare(na,'ru');
+      return sortMode==='name_asc'?na.localeCompare(nb):nb.localeCompare(na);
     });
     return list;
   }
@@ -496,14 +707,14 @@
     const items=getFiltered();
     if(!items.length){
       const el=document.createElement('div'); el.className='list-empty';
-      el.textContent=allSubmissions.length?'Нет заявок по фильтру':'Заявок пока нет';
+      el.textContent=allSubmissions.length?t('noSubmissionsFilter'):t('noSubmissions');
       pl.appendChild(el); return;
     }
     items.forEach(sub=>{
       const card=document.createElement('div');
       card.className='sub-card'+(sub.id===activeId?' is-active':'');
       card.dataset.id=sub.id;
-      const name=sub.visitor_name||'Аноним';
+      const name=sub.visitor_name||t('anonymous');
       const contact=[sub.visitor_email,sub.visitor_phone].filter(Boolean).join(' · ')||'—';
       card.innerHTML=`
         <input type="checkbox" class="sub-card-check" ${selectedIds.has(sub.id)?'checked':''} data-id="${esc(sub.id)}">
@@ -533,7 +744,7 @@
   function updateBulkBar(){
     const n=selectedIds.size;
     document.getElementById('bulk-bar').classList.toggle('is-hidden',n===0);
-    document.getElementById('bulk-count').textContent=n+' выбрано';
+    document.getElementById('bulk-count').textContent=t('selected')(n);
     const anyEnabled=capabilities.email==='project'||capabilities.whatsapp==='project'||capabilities.telegram==='project'||capabilities.webhook==='project';
     const bulkMsgBtn=document.getElementById('bulk-msg-btn');
     const bulkMsgNote=document.getElementById('bulk-msg-note');
@@ -554,12 +765,12 @@
   }
 
   function renderDetail(sub){
-    const name=sub.visitor_name||'Аноним';
+    const name=sub.visitor_name||t('anonymous');
     const email=sub.visitor_email||''; const phone=sub.visitor_phone||'';
     const waLink=phone?`https://wa.me/${phoneDigits(phone).replace(/^\+/,'')}`:'';
     const contactBtns=[
       email?`<a class="contact-btn" href="mailto:${esc(email)}">✉️ Email</a>`:'',
-      phone?`<a class="contact-btn" href="tel:${esc(phone)}">📞 Позвонить</a>`:'',
+      phone?`<a class="contact-btn" href="tel:${esc(phone)}">${t('btnCall')}</a>`:'',
       waLink?`<a class="contact-btn" href="${esc(waLink)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''
     ].filter(Boolean).join('');
 
@@ -568,37 +779,37 @@
       <div class="detail-header">
         <div>
           <p class="detail-name">${esc(name)}</p>
-          <p class="detail-date">Заявка от ${fmt(sub.created_at)}</p>
+          <p class="detail-date">${t('submissionDate')} ${fmt(sub.created_at)}</p>
         </div>
         <div class="detail-actions">
-          <button class="btn btn-sm" id="d-archive-btn">${sub.crm_status==='archived'?'↩ Восстановить':'📦 В архив'}</button>
-          <button class="btn btn-sm btn-danger" id="d-delete-btn">Удалить</button>
+          <button class="btn btn-sm" id="d-archive-btn">${sub.crm_status==='archived'?t('btnRestore'):t('btnArchive')}</button>
+          <button class="btn btn-sm btn-danger" id="d-delete-btn">${t('btnDelete')}</button>
         </div>
       </div>
-      <div class="contact-row">${contactBtns||'<span style="color:var(--muted)">Контакт не указан</span>'}</div>
+      <div class="contact-row">${contactBtns||'<span style="color:var(--muted)">'+t('noContact')+'</span>'}</div>
       <div class="status-select-row">
-        <label for="d-status">Статус:</label>
+        <label for="d-status">${t('statusLabel')}</label>
         <select class="status-select" id="d-status">
           ${['new','contacted','in_progress','closed','archived'].map(s=>`<option value="${s}" ${sub.crm_status===s?'selected':''}>${sLabel(s)}</option>`).join('')}
         </select>
       </div>
       <hr class="divider">
-      <div class="field-group"><div class="field-label">Имя</div><input class="field-input" id="d-f-name" type="text" value="${esc(sub.visitor_name||'')}" placeholder="—"></div>
-      <div class="field-group"><div class="field-label">Email</div><input class="field-input" id="d-f-email" type="text" value="${esc(sub.visitor_email||'')}" placeholder="—"></div>
-      <div class="field-group"><div class="field-label">Телефон</div><input class="field-input" id="d-f-phone" type="text" value="${esc(sub.visitor_phone||'')}" placeholder="—"></div>
-      <div class="field-group"><div class="field-label">Предпочтительное время</div><input class="field-input" id="d-f-time" type="text" value="${esc(sub.preferred_time_text||'')}" placeholder="—"></div>
-      <div class="field-group"><div class="field-label">Сообщение</div><textarea class="notes-textarea" id="d-f-msg">${esc(sub.request_text||'')}</textarea></div>
+      <div class="field-group"><div class="field-label">${t('fldName')}</div><input class="field-input" id="d-f-name" type="text" value="${esc(sub.visitor_name||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">${t('fldEmail')}</div><input class="field-input" id="d-f-email" type="text" value="${esc(sub.visitor_email||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">${t('fldPhone')}</div><input class="field-input" id="d-f-phone" type="text" value="${esc(sub.visitor_phone||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">${t('fldTime')}</div><input class="field-input" id="d-f-time" type="text" value="${esc(sub.preferred_time_text||'')}" placeholder="—"></div>
+      <div class="field-group"><div class="field-label">${t('fldMessage')}</div><textarea class="notes-textarea" id="d-f-msg">${esc(sub.request_text||'')}</textarea></div>
       <div class="notes-save-row" style="margin-bottom:8px">
-        <button class="btn btn-sm" id="d-fields-save">Сохранить данные</button>
+        <button class="btn btn-sm" id="d-fields-save">${t('saveData')}</button>
         <span class="notes-status" id="d-fields-st"></span>
       </div>
-      ${sub.page_url?`<div class="field-group"><div class="field-label">Страница</div><div class="field-value"><a href="${esc(sub.page_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(sub.page_url)}</a></div></div>`:''}
+      ${sub.page_url?`<div class="field-group"><div class="field-label">${t('fldPage')}</div><div class="field-value"><a href="${esc(sub.page_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(sub.page_url)}</a></div></div>`:''}
       <hr class="divider">
       <div style="margin-bottom:16px">
-        <div class="field-label">Заметки</div>
+        <div class="field-label">${t('fldNotes')}</div>
         <textarea class="notes-textarea" id="d-notes">${esc(sub.notes||'')}</textarea>
         <div class="notes-save-row">
-          <button class="btn btn-sm" id="d-notes-save">Сохранить</button>
+          <button class="btn btn-sm" id="d-notes-save">${t('saveNotes')}</button>
           <span class="notes-status" id="d-notes-st"></span>
         </div>
       </div>
@@ -612,12 +823,12 @@
         const idx=allSubmissions.findIndex(s=>s.id===sub.id);
         if(idx!==-1) allSubmissions[idx].crm_status=ns; sub.crm_status=ns;
         updateCounts(); renderList(); renderDetail(sub);
-      }catch(e){alert('Ошибка: '+e.message); this.value=sub.crm_status;}
+      }catch(e){alert(t('err')+e.message); this.value=sub.crm_status;}
     });
 
     document.getElementById('d-fields-save').addEventListener('click',async()=>{
       const st=document.getElementById('d-fields-st');
-      st.textContent='Сохраняем…';
+      st.textContent=t('saving');
       const patch={
         visitor_name:document.getElementById('d-f-name').value.trim()||null,
         visitor_email:document.getElementById('d-f-email').value.trim()||null,
@@ -632,21 +843,21 @@
         Object.assign(sub,patch);
         if(idx!==-1) Object.assign(allSubmissions[idx],patch);
         renderList();
-        st.textContent='Сохранено ✓'; setTimeout(()=>st.textContent='',2000);
-      }catch(e){st.textContent='Ошибка: '+e.message;}
+        st.textContent=t('saved'); setTimeout(()=>st.textContent='',2000);
+      }catch(e){st.textContent=t('err')+e.message;}
     });
 
     document.getElementById('d-notes-save').addEventListener('click',async()=>{
       const notes=document.getElementById('d-notes').value;
       const st=document.getElementById('d-notes-st');
-      st.textContent='Сохраняем…';
+      st.textContent=t('saving');
       try{
         const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/'+sub.id,{method:'PATCH',body:JSON.stringify({notes})});
         if(!r.ok) throw new Error('HTTP '+r.status);
         const idx=allSubmissions.findIndex(s=>s.id===sub.id);
         if(idx!==-1) allSubmissions[idx].notes=notes; sub.notes=notes;
-        st.textContent='Сохранено ✓'; setTimeout(()=>st.textContent='',2000);
-      }catch(e){st.textContent='Ошибка: '+e.message;}
+        st.textContent=t('saved'); setTimeout(()=>st.textContent='',2000);
+      }catch(e){st.textContent=t('err')+e.message;}
     });
 
     document.getElementById('d-archive-btn').addEventListener('click',async function(){
@@ -658,12 +869,12 @@
         const idx=allSubmissions.findIndex(s=>s.id===sub.id);
         if(idx!==-1) allSubmissions[idx].crm_status=ns; sub.crm_status=ns;
         updateCounts(); renderList(); renderDetail(sub);
-      }catch(e){alert('Ошибка: '+e.message);}
+      }catch(e){alert(t('err')+e.message);}
       finally{this.disabled=false;}
     });
 
     document.getElementById('d-delete-btn').addEventListener('click',async function(){
-      if(!confirm('Удалить заявку от "'+name+'" навсегда?')) return;
+      if(!confirm(t('confirmDelete')(name))) return;
       this.disabled=true;
       try{
         const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/'+sub.id,{method:'DELETE'});
@@ -674,22 +885,22 @@
         document.getElementById('panel-detail').classList.remove('is-open');
         document.querySelector('.detail-empty') && (document.querySelector('.detail-empty').style.display='');
         updateCounts(); updateBulkBar(); renderList();
-      }catch(e){alert('Ошибка: '+e.message); this.disabled=false;}
+      }catch(e){alert(t('err')+e.message); this.disabled=false;}
     });
   }
 
   // ── Bulk ──
   document.getElementById('bulk-archive-btn').addEventListener('click',async()=>{
-    if(!selectedIds.size||!confirm('В архив '+selectedIds.size+' заявок?')) return;
+    if(!selectedIds.size||!confirm(t('confirmArchive')(selectedIds.size))) return;
     try{
       const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/bulk',{method:'POST',body:JSON.stringify({action:'archive',ids:[...selectedIds]})});
       if(!r.ok) throw new Error('HTTP '+r.status);
       selectedIds.forEach(id=>{const i=allSubmissions.findIndex(s=>s.id===id);if(i!==-1)allSubmissions[i].crm_status='archived';});
       selectedIds.clear(); updateCounts(); updateBulkBar(); renderList();
-    }catch(e){alert('Ошибка: '+e.message);}
+    }catch(e){alert(t('err')+e.message);}
   });
   document.getElementById('bulk-delete-btn').addEventListener('click',async()=>{
-    if(!selectedIds.size||!confirm('Удалить '+selectedIds.size+' заявок безвозвратно?')) return;
+    if(!selectedIds.size||!confirm(t('confirmBulkDelete')(selectedIds.size))) return;
     try{
       const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/bulk',{method:'POST',body:JSON.stringify({action:'delete',ids:[...selectedIds]})});
       if(!r.ok) throw new Error('HTTP '+r.status);
@@ -697,7 +908,7 @@
       allSubmissions=allSubmissions.filter(s=>!del.has(s.id));
       if(activeId&&del.has(activeId)){activeId=null;document.getElementById('detail-content').classList.add('is-hidden');}
       selectedIds.clear(); updateCounts(); updateBulkBar(); renderList();
-    }catch(e){alert('Ошибка: '+e.message);}
+    }catch(e){alert(t('err')+e.message);}
   });
   document.getElementById('bulk-deselect-btn').addEventListener('click',()=>{
     selectedIds.clear(); updateBulkBar();
@@ -715,14 +926,12 @@
       if(!r.ok) throw new Error('HTTP '+r.status);
       selectedIds.forEach(id=>{const i=allSubmissions.findIndex(s=>s.id===id);if(i!==-1)allSubmissions[i].crm_status=st;});
       selectedIds.clear(); updateCounts(); updateBulkBar(); renderList();
-    }catch(e){alert('Ошибка: '+e.message);}
+    }catch(e){alert(t('err')+e.message);}
   });
 
-  // Bulk message — init checkboxes visibility based on capabilities
-  // capabilities[transport]: 'project' = enabled, 'env' = disabled (env-only), null = hidden
-  const DEV_MSG='Для включения этого транспорта обратитесь к разработчику';
+  // Bulk message
+  const DEV_MSG_FN=function(){return t('errDevTransport');};
   function applyTransportState(label,check,source){
-    // Remove previous label guard if any
     if(label._envGuard){label.removeEventListener('click',label._envGuard);delete label._envGuard;}
     if(!source){label.style.display='none';check.checked=false;check.disabled=true;return;}
     label.style.display='flex';
@@ -730,10 +939,9 @@
       check.disabled=false;check.checked=true;
       label.style.opacity='';label.style.cursor='pointer';
     } else {
-      // env-fallback: show greyed-out; click on label shows message
       check.disabled=true;check.checked=false;
       label.style.opacity='0.45';label.style.cursor='default';
-      function envGuard(e){e.preventDefault();e.stopPropagation();alert(DEV_MSG);}
+      function envGuard(e){e.preventDefault();e.stopPropagation();alert(DEV_MSG_FN());}
       label._envGuard=envGuard;
       label.addEventListener('click',envGuard);
     }
@@ -753,7 +961,6 @@
     applyTransportState(tgLabel,tgCheck,capabilities.telegram);
     applyTransportState(whLabel,whCheck,capabilities.webhook);
     function toggleSubject(){subjRow.style.display=emailCheck.checked?'':'none';}
-    // Re-attach subject-toggle listener on email check (remove previous by cloning)
     const newEmailCheck=emailCheck.cloneNode(true);
     newEmailCheck.checked=emailCheck.checked; newEmailCheck.disabled=emailCheck.disabled;
     emailLabel.replaceChild(newEmailCheck,emailCheck);
@@ -777,26 +984,26 @@
     const subj=document.getElementById('msg-subject').value.trim();
     const txt=document.getElementById('msg-text').value.trim();
     const st=document.getElementById('msg-status');
-    if(!transports.length){st.textContent='Выберите хотя бы один транспорт';return;}
-    if(transports.includes('email')&&!subj){st.textContent='Заполните тему письма';return;}
-    if(!txt){st.textContent='Введите текст сообщения';return;}
-    const btn=document.getElementById('msg-send'); btn.disabled=true; st.textContent='Отправляем…';
+    if(!transports.length){st.textContent=t('errNoTransport');return;}
+    if(transports.includes('email')&&!subj){st.textContent=t('errNoSubject');return;}
+    if(!txt){st.textContent=t('errNoText');return;}
+    const btn=document.getElementById('msg-send'); btn.disabled=true; st.textContent=t('sending');
     try{
       const payload={ids:[...selectedIds],transports,text:txt};
       if(transports.includes('email')) payload.subject=subj;
       const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/bulk-message',{method:'POST',body:JSON.stringify(payload)});
       const d=await r.json();
       if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
-      const parts=Object.entries(d.results||{}).map(([t,s])=>t+': '+s.sent+' отпр.'+( s.failed?' ('+s.failed+' ошибок)':'')).join(', ');
-      st.textContent=parts||('Отправлено: '+d.sent+', ошибок: '+d.failed);
+      const parts=Object.entries(d.results||{}).map(([tr,s])=>t('sentTransport')(tr,s.sent,s.failed)).join(', ');
+      st.textContent=parts||t('sentResult')(d.sent,d.failed);
       if(d.failed===0) setTimeout(()=>document.getElementById('bulk-msg-modal').classList.remove('is-visible'),1500);
-    }catch(e){st.textContent='Ошибка: '+e.message;}
+    }catch(e){st.textContent=t('err')+e.message;}
     finally{btn.disabled=false;}
   });
 
   // ── CSV export ──
   document.getElementById('export-btn').addEventListener('click',()=>{
-    if(!allSubmissions.length){alert('Нет заявок');return;}
+    if(!allSubmissions.length){alert(t('errNoSubmissions'));return;}
     const cols=['id','crm_status','visitor_name','visitor_email','visitor_phone','request_text','preferred_time_text','notes','created_at'];
     const rows=allSubmissions.map(s=>cols.map(c=>`"${String(s[c]||'').replace(/"/g,'""')}"`).join(','));
     const csv='\uFEFF'+[cols.join(','),...rows].join('\n');
@@ -817,15 +1024,15 @@
     const nw=document.getElementById('pw-new').value;
     const nw2=document.getElementById('pw-new2').value;
     const st=document.getElementById('pw-status');
-    if(nw!==nw2){st.textContent='Пароли не совпадают';st.style.color='var(--err)';return;}
-    const btn=document.getElementById('pw-save'); btn.disabled=true; st.textContent='Сохраняем…'; st.style.color='var(--muted)';
+    if(nw!==nw2){st.textContent=t('errPwNoMatch');st.style.color='var(--err)';return;}
+    const btn=document.getElementById('pw-save'); btn.disabled=true; st.textContent=t('saving'); st.style.color='var(--muted)';
     try{
       const r=await api('/api/client-auth/'+PROJECT_SLUG+'/change-password',{method:'POST',body:JSON.stringify({oldPassword:old,newPassword:nw})});
       const d=await r.json();
       if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
-      st.textContent='Пароль изменён ✓'; st.style.color='var(--ok)';
+      st.textContent=t('pwChanged'); st.style.color='var(--ok)';
       setTimeout(()=>document.getElementById('pw-modal').classList.remove('is-visible'),1500);
-    }catch(e){st.textContent='Ошибка: '+e.message; st.style.color='var(--err)';}
+    }catch(e){st.textContent=t('err')+e.message; st.style.color='var(--err)';}
     finally{btn.disabled=false;}
   });
 
@@ -846,32 +1053,33 @@
       if(!r.ok) throw new Error('HTTP '+r.status);
       const d=await r.json();
       const users=d.users||[];
-      if(!users.length){ul.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:8px 0">Нет пользователей</div>';return;}
+      if(!users.length){ul.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:8px 0">'+t('noUsers')+'</div>';return;}
       ul.innerHTML=users.map(u=>`
         <div class="user-row" data-uid="${esc(u.id)}">
           <div class="user-info">
             <div class="user-email">${esc(u.email)}</div>
-            <div class="user-role">${u.role==='owner'?'Владелец':'Сотрудник'}</div>
+            <div class="user-role">${u.role==='owner'?t('roleOwner'):t('roleEmployee')}</div>
           </div>
-          ${u.id!==currentUser.id?`<button class="btn btn-sm btn-danger" data-remove="${esc(u.id)}">Удалить</button>`:'<span style="font-size:.72rem;color:var(--muted)">Это вы</span>'}
+          ${u.id!==currentUser.id?`<button class="btn btn-sm btn-danger" data-remove="${esc(u.id)}">${t('btnDelete')}</button>`:'<span style="font-size:.72rem;color:var(--muted)">'+t('youTag')+'</span>'}
         </div>
       `).join('');
       ul.querySelectorAll('[data-remove]').forEach(btn=>{
         btn.addEventListener('click',async()=>{
-          if(!confirm('Удалить пользователя '+btn.closest('.user-row').querySelector('.user-email').textContent+'?')) return;
+          const email=btn.closest('.user-row').querySelector('.user-email').textContent;
+          if(!confirm(t('confirmRemoveUser')(email))) return;
           btn.disabled=true;
           try{
             const r=await api('/api/client-crm/'+PROJECT_SLUG+'/users/'+btn.dataset.remove,{method:'DELETE'});
             if(!r.ok) throw new Error('HTTP '+r.status);
             await loadUsers();
-          }catch(e){document.getElementById('users-status').textContent='Ошибка: '+e.message; btn.disabled=false;}
+          }catch(e){document.getElementById('users-status').textContent=t('err')+e.message; btn.disabled=false;}
         });
       });
-    }catch(e){ul.textContent='Ошибка: '+e.message;}
+    }catch(e){ul.textContent=t('err')+e.message;}
   }
 
   document.getElementById('gen-invite-btn').addEventListener('click',async()=>{
-    const st=document.getElementById('users-status'); st.textContent='Создаём ссылку…';
+    const st=document.getElementById('users-status'); st.textContent=t('creatingLink');
     const btn=document.getElementById('gen-invite-btn'); btn.disabled=true;
     try{
       const r=await api('/api/client-crm/'+PROJECT_SLUG+'/invite',{method:'POST'});
@@ -879,17 +1087,18 @@
       if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
       const area=document.getElementById('invite-link-area');
       area.classList.remove('is-hidden');
-      document.getElementById('invite-link-input').value=d.inviteUrl||('Токен: '+d.token);
-      st.textContent='Ссылка действительна 7 дней';
-    }catch(e){st.textContent='Ошибка: '+e.message;}
+      document.getElementById('invite-link-input').value=d.inviteUrl||('Token: '+d.token);
+      st.textContent=t('inviteLinkValid');
+    }catch(e){st.textContent=t('err')+e.message;}
     finally{btn.disabled=false;}
   });
 
   document.getElementById('copy-invite-btn').addEventListener('click',()=>{
     const inp=document.getElementById('invite-link-input');
     inp.select(); document.execCommand('copy');
-    document.getElementById('copy-invite-btn').textContent='Скопировано!';
-    setTimeout(()=>document.getElementById('copy-invite-btn').textContent='Копировать',2000);
+    const btn=document.getElementById('copy-invite-btn');
+    btn.textContent=t('copied');
+    setTimeout(()=>btn.textContent=t('copyInvite'),2000);
   });
 
   // ── Search / sort / tabs ──
@@ -922,6 +1131,7 @@
 
   // ── Init ──
   async function init(){
+    applyI18n();
     if(inviteToken){showScreen('invite');return;}
     if(accessToken){
       try{
