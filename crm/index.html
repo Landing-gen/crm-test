@@ -210,6 +210,7 @@
     <button class="btn btn-sm" id="bulk-status-btn">Статус…</button>
     <button class="btn btn-sm" id="bulk-archive-btn">В архив</button>
     <button class="btn btn-sm" id="bulk-msg-btn">Рассылка…</button>
+    <span id="bulk-msg-note" class="is-hidden" style="font-size:.78rem;color:var(--muted);font-style:italic">Для подключения рассылок обратитесь к разработчику</span>
     <button class="btn btn-sm btn-danger" id="bulk-delete-btn">Удалить</button>
     <button class="btn btn-sm" id="bulk-deselect-btn">Снять</button>
   </div>
@@ -282,8 +283,22 @@
 <!-- Bulk message modal -->
 <div class="modal-overlay" id="bulk-msg-modal">
   <div class="modal-box">
-    <h3>Рассылка по email</h3>
-    <div class="field-row"><label class="label">Тема</label><input id="msg-subject" class="field" type="text" placeholder="Уточнение по вашей заявке"></div>
+    <h3>Рассылка</h3>
+    <div id="msg-transports" style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">
+      <label id="msg-email-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem">
+        <input type="checkbox" id="msg-email-check" value="email"> Email
+      </label>
+      <label id="msg-wa-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem">
+        <input type="checkbox" id="msg-wa-check" value="whatsapp"> WhatsApp
+      </label>
+      <label id="msg-tg-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem">
+        <input type="checkbox" id="msg-tg-check" value="telegram"> Telegram
+      </label>
+      <label id="msg-wh-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem">
+        <input type="checkbox" id="msg-wh-check" value="webhook"> Webhook
+      </label>
+    </div>
+    <div id="msg-subject-row" class="field-row"><label class="label">Тема (email)</label><input id="msg-subject" class="field" type="text" placeholder="Уточнение по вашей заявке"></div>
     <div class="field-row"><label class="label">Текст</label><textarea id="msg-text" class="field" rows="5" style="resize:vertical"></textarea></div>
     <div id="msg-status" style="font-size:.78rem;color:var(--muted);min-height:1.2em"></div>
     <div class="modal-footer">
@@ -308,6 +323,7 @@
   let currentTab = 'active';
   let searchQuery = '';
   let sortMode = 'newest';
+  let capabilities = { emailEnabled: false, whatsappEnabled: false, telegramEnabled: false, webhookEnabled: false };
   const inviteToken = new URLSearchParams(location.search).get('invite') || '';
 
   // ── DOM ──
@@ -409,6 +425,11 @@
     // Hide users button if not owner
     const usersBtn=document.getElementById('users-btn');
     if(currentUser && currentUser.role!=='owner') usersBtn.classList.add('is-hidden');
+    // Load capabilities (best-effort — bulk bar will reflect result)
+    try{
+      const r=await api('/api/client-crm/'+PROJECT_SLUG+'/capabilities');
+      if(r.ok){ const d=await r.json(); capabilities={emailEnabled:Boolean(d.emailEnabled),whatsappEnabled:Boolean(d.whatsappEnabled),telegramEnabled:Boolean(d.telegramEnabled),webhookEnabled:Boolean(d.webhookEnabled)}; }
+    }catch{ capabilities={emailEnabled:false,whatsappEnabled:false,telegramEnabled:false,webhookEnabled:false}; }
     await loadSubmissions();
   }
 
@@ -510,6 +531,11 @@
     const n=selectedIds.size;
     document.getElementById('bulk-bar').classList.toggle('is-hidden',n===0);
     document.getElementById('bulk-count').textContent=n+' выбрано';
+    const anyEnabled=capabilities.emailEnabled||capabilities.whatsappEnabled||capabilities.telegramEnabled||capabilities.webhookEnabled;
+    const bulkMsgBtn=document.getElementById('bulk-msg-btn');
+    const bulkMsgNote=document.getElementById('bulk-msg-note');
+    if(bulkMsgBtn) bulkMsgBtn.classList.toggle('is-hidden',!anyEnabled);
+    if(bulkMsgNote) bulkMsgNote.classList.toggle('is-hidden',anyEnabled);
   }
 
   // ── Detail panel ──
@@ -663,22 +689,62 @@
     }catch(e){alert('Ошибка: '+e.message);}
   });
 
-  // Bulk message
+  // Bulk message — init checkboxes visibility based on capabilities
+  function initMsgModal(){
+    const emailLabel=document.getElementById('msg-email-label');
+    const waLabel=document.getElementById('msg-wa-label');
+    const tgLabel=document.getElementById('msg-tg-label');
+    const whLabel=document.getElementById('msg-wh-label');
+    const emailCheck=document.getElementById('msg-email-check');
+    const waCheck=document.getElementById('msg-wa-check');
+    const tgCheck=document.getElementById('msg-tg-check');
+    const whCheck=document.getElementById('msg-wh-check');
+    const subjRow=document.getElementById('msg-subject-row');
+    emailLabel.style.display=capabilities.emailEnabled?'flex':'none';
+    waLabel.style.display=capabilities.whatsappEnabled?'flex':'none';
+    tgLabel.style.display=capabilities.telegramEnabled?'flex':'none';
+    whLabel.style.display=capabilities.webhookEnabled?'flex':'none';
+    // Pre-check all available transports
+    emailCheck.checked=capabilities.emailEnabled;
+    waCheck.checked=capabilities.whatsappEnabled;
+    tgCheck.checked=capabilities.telegramEnabled;
+    whCheck.checked=capabilities.webhookEnabled;
+    function toggleSubject(){subjRow.style.display=emailCheck.checked?'':'none';}
+    // Re-attach listener (remove previous by cloning)
+    const newCheck=emailCheck.cloneNode(true); emailCheck.parentNode.replaceChild(newCheck,emailCheck);
+    newCheck.checked=capabilities.emailEnabled;
+    newCheck.addEventListener('change',toggleSubject);
+    toggleSubject();
+  }
+
   document.getElementById('bulk-msg-btn').addEventListener('click',()=>{
-    if(selectedIds.size){document.getElementById('msg-status').textContent='';document.getElementById('bulk-msg-modal').classList.add('is-visible');}
+    if(!selectedIds.size) return;
+    document.getElementById('msg-status').textContent='';
+    initMsgModal();
+    document.getElementById('bulk-msg-modal').classList.add('is-visible');
   });
   document.getElementById('msg-cancel').addEventListener('click',()=>document.getElementById('bulk-msg-modal').classList.remove('is-visible'));
   document.getElementById('msg-send').addEventListener('click',async()=>{
+    const emailCheck=document.getElementById('msg-email-check');
+    const waCheck=document.getElementById('msg-wa-check');
+    const tgCheck=document.getElementById('msg-tg-check');
+    const whCheck=document.getElementById('msg-wh-check');
+    const transports=[emailCheck.checked&&'email',waCheck.checked&&'whatsapp',tgCheck.checked&&'telegram',whCheck.checked&&'webhook'].filter(Boolean);
     const subj=document.getElementById('msg-subject').value.trim();
     const txt=document.getElementById('msg-text').value.trim();
     const st=document.getElementById('msg-status');
-    if(!subj||!txt){st.textContent='Заполните тему и текст';return;}
+    if(!transports.length){st.textContent='Выберите хотя бы один транспорт';return;}
+    if(transports.includes('email')&&!subj){st.textContent='Заполните тему письма';return;}
+    if(!txt){st.textContent='Введите текст сообщения';return;}
     const btn=document.getElementById('msg-send'); btn.disabled=true; st.textContent='Отправляем…';
     try{
-      const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/bulk-message',{method:'POST',body:JSON.stringify({ids:[...selectedIds],subject:subj,text:txt})});
+      const payload={ids:[...selectedIds],transports,text:txt};
+      if(transports.includes('email')) payload.subject=subj;
+      const r=await api('/api/client-crm/'+PROJECT_SLUG+'/submissions/bulk-message',{method:'POST',body:JSON.stringify(payload)});
       const d=await r.json();
       if(!r.ok) throw new Error(d.error||'HTTP '+r.status);
-      st.textContent='Отправлено: '+d.sent+', ошибок: '+d.failed;
+      const parts=Object.entries(d.results||{}).map(([t,s])=>t+': '+s.sent+' отпр.'+( s.failed?' ('+s.failed+' ошибок)':'')).join(', ');
+      st.textContent=parts||('Отправлено: '+d.sent+', ошибок: '+d.failed);
       if(d.failed===0) setTimeout(()=>document.getElementById('bulk-msg-modal').classList.remove('is-visible'),1500);
     }catch(e){st.textContent='Ошибка: '+e.message;}
     finally{btn.disabled=false;}
