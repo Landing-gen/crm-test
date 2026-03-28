@@ -722,21 +722,20 @@
   // capabilities[transport]: 'project' = enabled, 'env' = disabled (env-only), null = hidden
   const DEV_MSG='Для включения этого транспорта обратитесь к разработчику';
   function applyTransportState(label,check,source){
+    // Remove previous label guard if any
+    if(label._envGuard){label.removeEventListener('click',label._envGuard);delete label._envGuard;}
     if(!source){label.style.display='none';check.checked=false;check.disabled=true;return;}
     label.style.display='flex';
     if(source==='project'){
       check.disabled=false;check.checked=true;
       label.style.opacity='';label.style.cursor='pointer';
-      // remove any previously added env-click guard
-      if(check._envGuard){check.removeEventListener('click',check._envGuard);delete check._envGuard;}
     } else {
-      // env-fallback: show greyed-out, prevent checking
+      // env-fallback: show greyed-out; click on label shows message
       check.disabled=true;check.checked=false;
       label.style.opacity='0.45';label.style.cursor='default';
-      function envGuard(e){e.preventDefault();alert(DEV_MSG);}
-      if(check._envGuard) check.removeEventListener('click',check._envGuard);
-      check._envGuard=envGuard;
-      check.addEventListener('click',envGuard);
+      function envGuard(e){e.preventDefault();e.stopPropagation();alert(DEV_MSG);}
+      label._envGuard=envGuard;
+      label.addEventListener('click',envGuard);
     }
   }
   function initMsgModal(){
@@ -754,17 +753,11 @@
     applyTransportState(tgLabel,tgCheck,capabilities.telegram);
     applyTransportState(whLabel,whCheck,capabilities.webhook);
     function toggleSubject(){subjRow.style.display=emailCheck.checked?'':'none';}
-    // Re-attach subject-toggle listener (remove previous by cloning)
+    // Re-attach subject-toggle listener on email check (remove previous by cloning)
     const newEmailCheck=emailCheck.cloneNode(true);
-    // preserve env guard if applicable
-    if(capabilities.email==='env'){newEmailCheck.disabled=true;newEmailCheck.checked=false;}
+    newEmailCheck.checked=emailCheck.checked; newEmailCheck.disabled=emailCheck.disabled;
     emailLabel.replaceChild(newEmailCheck,emailCheck);
-    if(capabilities.email==='env'){
-      newEmailCheck._envGuard=function(e){e.preventDefault();alert(DEV_MSG);};
-      newEmailCheck.addEventListener('click',newEmailCheck._envGuard);
-    } else if(capabilities.email==='project'){
-      newEmailCheck.addEventListener('change',toggleSubject);
-    }
+    if(capabilities.email==='project') newEmailCheck.addEventListener('change',toggleSubject);
     toggleSubject();
   }
 
